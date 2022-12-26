@@ -60,7 +60,7 @@ fn draw_circle(img: &mut Image, c: Circle, color: u32) {
       let x = (i as i32) - c.x;
       let y = (j as i32) - c.y;
 
-      if ((c.radius*c.radius) as i32) > x*x + y*y {
+      if c.radius.pow(2) as i32 > x.pow(2) + y.pow(2) {
         let pos = j * img.width + i;
         img.pixels.remove(pos as usize);
         img.pixels.insert(pos as usize,  Pixel{
