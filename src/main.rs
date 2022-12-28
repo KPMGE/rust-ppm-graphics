@@ -40,6 +40,43 @@ impl Image {
   fn size(&self) -> usize {
     self.width * self.height
   }
+
+  fn fill(&mut self, color: u32) {
+    for _ in 0..self.size() {
+      self.pixels.push(Pixel::new(color));
+    }
+  }
+
+  fn draw_circle(&mut self, circle: &Circle, color: u32) {
+    for i in 0..self.width {
+      for j in 0..self.height {
+        let x = (i as i32) - circle.x;
+        let y = (j as i32) - circle.y;
+
+        if circle.radius.pow(2) as i32 > x.pow(2) + y.pow(2) {
+          let pos = j * self.width + i;
+          if pos < self.pixels.len() {
+            self.pixels.remove(pos as usize);
+            self.pixels.insert(pos as usize, Pixel::new(color));
+          }
+        }
+      }
+    }
+  }
+
+  fn save_as_ppm(&self, file_path: &str) {
+    let mut file = File::create(file_path).unwrap();
+
+    if let Err(e) = write!(file, "P6\n{} {} 255\n", self.width, self.height) {
+      eprintln!("Couldn't write to file: {}", e);
+    }
+
+    for pixel in self.pixels.as_slice() {
+      if let Err(e) = file.write_all(&pixel.bytes()) {
+        eprintln!("Couldn't write to file: {}", e);
+      }
+    }
+  }
 }
 
 struct Circle {
@@ -61,43 +98,6 @@ fn main() {
   draw_japan_flag(WIDTH, HEIGHT);
 }
 
-fn draw_circle(img: &mut Image, c: Circle, color: u32) {
-  for i in 0..img.width {
-    for j in 0..img.height {
-      let x = (i as i32) - c.x;
-      let y = (j as i32) - c.y;
-
-      if c.radius.pow(2) as i32 > x.pow(2) + y.pow(2) {
-        let pos = j * img.width + i;
-        if pos < img.pixels.len() {
-          img.pixels.remove(pos as usize);
-          img.pixels.insert(pos as usize, Pixel::new(color));
-        }
-      }
-    }
-  }
-}
-
-fn fill_image(img: &mut Image, color: u32) {
-  for _ in 0..img.size() {
-    img.pixels.push(Pixel::new(color));
-  }
-}
-
-fn save_image_as_ppm(file_path: &str, img: &Image) {
-  let mut file = File::create(file_path).unwrap();
-
-  if let Err(e) = write!(file, "P6\n{} {} 255\n", img.width, img.height) {
-    eprintln!("Couldn't write to file: {}", e);
-  }
-
-  for pixel in img.pixels.as_slice() {
-    if let Err(e) = file.write_all(&pixel.bytes()) {
-      eprintln!("Couldn't write to file: {}", e);
-    }
-  }
-}
-
 fn draw_japan_flag(width: usize, height: usize) {
   let mut img = Image::new(width, height);
 
@@ -105,7 +105,7 @@ fn draw_japan_flag(width: usize, height: usize) {
   let red = 0x00ff;
   let circle_at_center = Circle::new((img.width / 2) as i32, (img.height / 2) as i32, 80);
 
-  fill_image(&mut img, white);
-  draw_circle(&mut img, circle_at_center, red);
-  save_image_as_ppm("out.ppm", &img);
+  img.fill(white);
+  img.draw_circle(&circle_at_center, red);
+  img.save_as_ppm("out.ppm");
 }
