@@ -58,8 +58,7 @@ fn main() {
   const WIDTH: usize = 600;
   const HEIGHT: usize = 400;
 
-  let mut img = Image::new(WIDTH, HEIGHT);
-  draw_japan_flag(&mut img);
+  draw_japan_flag(WIDTH, HEIGHT);
 }
 
 fn draw_circle(img: &mut Image, c: Circle, color: u32) {
@@ -70,8 +69,10 @@ fn draw_circle(img: &mut Image, c: Circle, color: u32) {
 
       if c.radius.pow(2) as i32 > x.pow(2) + y.pow(2) {
         let pos = j * img.width + i;
-        img.pixels.remove(pos as usize);
-        img.pixels.insert(pos as usize, Pixel::new(color));
+        if pos < img.pixels.len() {
+          img.pixels.remove(pos as usize);
+          img.pixels.insert(pos as usize, Pixel::new(color));
+        }
       }
     }
   }
@@ -83,7 +84,7 @@ fn fill_image(img: &mut Image, color: u32) {
   }
 }
 
-fn save_image_as_ppm(file_path: &str, img: &mut Image) {
+fn save_image_as_ppm(file_path: &str, img: &Image) {
   let mut file = File::create(file_path).unwrap();
 
   if let Err(e) = write!(file, "P6\n{} {} 255\n", img.width, img.height) {
@@ -97,8 +98,14 @@ fn save_image_as_ppm(file_path: &str, img: &mut Image) {
   }
 }
 
-fn draw_japan_flag(img: &mut Image) {
-  fill_image(img, 0xfffffff);
-  draw_circle(img, Circle::new((img.width / 2) as i32, (img.height / 2) as i32, 80), 0x00ff);
-  save_image_as_ppm("out.ppm", img);
+fn draw_japan_flag(width: usize, height: usize) {
+  let mut img = Image::new(width, height);
+
+  let white = 0xfffffff;
+  let red = 0x00ff;
+  let circle_at_center = Circle::new((img.width / 2) as i32, (img.height / 2) as i32, 80);
+
+  fill_image(&mut img, white);
+  draw_circle(&mut img, circle_at_center, red);
+  save_image_as_ppm("out.ppm", &img);
 }
