@@ -18,6 +18,6 @@ a *out.ppm* file, which is your generated image.
 A really simple example of what such a library can generate is a flag. If you go to the code, you will see the
 _draw_japan_flag_ function, the result is the following: 
 
-<img src="https://github.com/KPMGE/rust-ppm-graphics/blob/main/examples/japan.png" height="600"/>
+<img src="https://github.com/KPMGE/rust-ppm-graphics/blob/main/examples/japan.png" height="400"/>
 
 > This project was inspired on Tsodin's stream: [olive c library](https://youtu.be/LmQKZmQh1ZQ)
